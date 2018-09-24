@@ -28,15 +28,33 @@ __task void task1()
 __task void task2()
 {
 	//OS_RESULT testGet;
-	RL_TASK_INFO *taskInfo; //= malloc(64); //= malloc(sizeof(RL_TASK_INFO));
+	// = //malloc(64); //= malloc(sizeof(RL_TASK_INFO));
+	//int* ptr1 = (int*)malloc(sizeof(int));
+	
+	RL_TASK_INFO taskInfo;
 	
 	while(1)
 	{
+		int i;
+		int count = os_tsk_count_get();
 		printf("Task2: HelloWorld!\n");
-		//not actually filling taskInfo, just has garbage right now 
-		rt_tsk_get(128, taskInfo);
-		//testGet = rt_tsk_get(1, taskInfo);
-		printf("state: %d\n", taskInfo->state);
+		
+		for(i = 0; i< count; i++)
+		{
+			if(os_tsk_get(i+1, &taskInfo) == OS_R_OK)
+			{
+				if(taskInfo.state == RUNNING)
+				{
+					printf("running\n");
+				}
+			}
+			//os_tsk_get(i+1, &taskInfo);
+			
+			//if(taskInfo.state == RUNNING)
+			//	{
+			//		printf("running\n");
+			//	}
+		}
 		
 		#ifdef MYSIM
 		os_dly_wait(3);
@@ -59,5 +77,5 @@ int main()
 	uart0_init();
 	os_sys_init(init);
 	/* uart0_put_string("Hello World!\n\r");
-	return 0; */
+	return 0; */	
 }

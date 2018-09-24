@@ -38,24 +38,65 @@ int rt_tsk_count_get (void) {
 
 /*----------------------- rt_tsk_get --------------------------------*/
 	OS_RESULT rt_tsk_get (OS_TID task_id, RL_TASK_INFO *p_task_info) {
-	// add your own code here
-	P_TCB task_content;
-	
-	//assuming task_id -1 is the index of the task in array
-	if(task_id > os_maxtaskrun || os_active_TCB[task_id-1] == NULL)
-	{
-		return OS_R_NOK;
-	}
-	
-	task_content = os_active_TCB[task_id - 1];
-	p_task_info -> state = task_content -> state; 
-	p_task_info -> prio = task_content -> prio;
-	p_task_info -> task_id;
-	p_task_info -> ptask = task_content -> ptask;
-	
-	//p_task_info -> stack_usage
-	
-	return OS_R_OK;
+		U32 total_stack_size;
+		U32 task_occupied_size = 0;
+		
+		// add your own code here
+		P_TCB task_content = os_active_TCB[task_id - 1];
+		
+		if(task_content == NULL || task_id > os_maxtaskrun)
+		{
+			return(OS_R_NOK);
+		}
+		
+			p_task_info -> task_id = task_id ;
+			p_task_info -> state = task_content -> state; 
+			p_task_info -> prio = task_content -> prio;
+			p_task_info -> ptask = task_content -> ptask;
+		
+		total_stack_size = (U16)os_stackinfo;
+		
+		//stack usage
+		if(task_content -> state == RUNNING)
+		{
+			//task_occupied_size = (U32)rt_get_PSP() - (U32)task_content->stack;
+			
+			//PSP points to the last item in stack
+			//task_content->stack points to the starting location of the task in the stack
+			//PSP - task_content->stack is the space unused by that task
+			//total_stack_size - unused stack space = space occupied by task
+			task_occupied_size = total_stack_size - ((U32)rt_get_PSP() - (U32)task_content->stack);
+		}
+		else
+		{
+			task_occupied_size = total_stack_size - ((U32)task_content->tsk_stack - (U32)task_content->stack);
+		}
+		
+// 		p_task_info -> stack_usage = (U8) ((task_occupied_size / total_stack_size)*100);
+		  
+		  // percentage of used / total
+		  p_task_info -> stack_usage = (U8)((task_occupied_size/ total_stack_size)*100);
+		
+				
+		return OS_R_OK;
+		
+// 		P_TCB task_content = os_active_TCB[task_id - 1];
+// 		if(task_content != NULL)
+// 		{
+// 			
+// 			p_task_info -> task_id = task_id ;
+// 			p_task_info -> state = task_content -> state; 
+// 			p_task_info -> prio = task_content -> prio;
+// 			p_task_info -> ptask = task_content -> ptask;
+// 			
+// 		}
+// 		
+// 		if(task_content == NULL)
+// 		{
+// 			return(OS_R_NOK);
+// 		}
+// 		
+// 		return OS_R_OK;
 }
 /* end of file */
  
