@@ -42,7 +42,7 @@
 8. Read Section C.2.3 and study rt_init_stack() and rt_get_PSP() functions source code in HAL_CM3.c file and answer the following questions.
 8.1 (2 points) Which registers are saved on the task stack?
 
-	R0 and PSP (program stack pointer) are saved
+	PSP (program stack pointer) is saved, put into R0
 
 8.2 (2 points) Which bits of which global variable contain the default task stack size in bytes?
 
