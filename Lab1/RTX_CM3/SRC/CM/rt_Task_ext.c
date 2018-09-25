@@ -55,7 +55,14 @@ int rt_tsk_count_get (void) {
 			p_task_info -> prio = task_content -> prio;
 			p_task_info -> ptask = task_content -> ptask;
 		
-		total_stack_size = (U16)os_stackinfo;
+		if(task_content->priv_stack > 0)
+		{
+			total_stack_size = (U16)task_content->priv_stack;
+		}
+		else
+		{
+			total_stack_size = (U16)os_stackinfo;
+		}
 		
 		//stack usage
 		if(task_content -> state == RUNNING)

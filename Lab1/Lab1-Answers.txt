@@ -59,4 +59,3 @@
 8.5 (2 points) For a task that is in RUNNING state, how to determine the memory address of the last item that is pushed onto its task stack (i.e. the top of the stack)?
 	
 	Memory location of the last item pushed onto the task stack in the running state can be obtained by calling rt_get_PSP();
-
