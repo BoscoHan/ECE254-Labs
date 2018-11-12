@@ -16,6 +16,14 @@
 
 double g_time[2];
 
+void producer(int id, int num_p, int num, int maxmsg)
+{
+	printf("\nid: %d\n", id);	
+	//wait
+	//produce
+	//signal
+	//while(1);
+}
 
 int main(int argc, char *argv[])
 {
@@ -24,6 +32,7 @@ int main(int argc, char *argv[])
 	int num_p;
 	int num_c;
 	int i;
+	int pid;
 	struct timeval tv;
 
 	if (argc != 5) {
@@ -40,7 +49,31 @@ int main(int argc, char *argv[])
 	gettimeofday(&tv, NULL);
 	g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
 
-
+	//code here----------------------------------------------
+	
+	//create producers
+	if (num_p)
+	{
+		//fork returns 0 to newly created child process
+		pid = 0;
+		for(i=0; i < num_p; i++)
+		{
+			//parent continues to fork children until i = num_p
+			pid = fork();
+			if(pid == 0)
+			{
+				//child creates producer and breaks out
+				producer(i, num_p, num, maxmsg);
+				break;
+			}
+			else if(pid < 0)
+			{
+				printf("fork failed");
+			}
+		}
+	}
+	//--------------------------------------------------------
+   
     gettimeofday(&tv, NULL);
     g_time[1] = (tv.tv_sec) + tv.tv_usec/1000000.;
 
