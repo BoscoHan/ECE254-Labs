@@ -19,6 +19,9 @@ double g_time[2];
 void producer(int id) {
 	printf("\nid: %d\n", id);	
 
+	//returns message queue descriptor, to send message only
+	mqd_t qdes = mq_open(qname, O_WRONLY);
+
 	//wait
 	//produce
 	//signal
@@ -27,6 +30,10 @@ void producer(int id) {
 
 void consumer(int id) {
 	printf("\n consumer id: %d\n", id);
+
+	//returns message queue descriptor, to write and receive message 
+	mqd_t qdes = mq_open(qname, O_RDWR);
+
 }
 
 
@@ -38,6 +45,9 @@ int main(int argc, char *argv[])
 	int num_c;
 	int pid;
 	struct timeval tv;
+	//used in queue
+	const char * qname;
+
 
 	if (argc != 5) {
 		printf("Usage: %s <N> <B> <P> <C>\n", argv[0]);
