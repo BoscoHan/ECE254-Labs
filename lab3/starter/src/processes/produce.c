@@ -15,21 +15,56 @@
 #include <math.h>
 
 double g_time[2];
+const char * qname = "/buffer";
 
-void producer(int id) {
-	printf("\nid: %d\n", id);	
+void producer(int id, int total_producers, int total_num, int queue_size) 
+{
+	int produced_number;
+	//printf("\nid: %d\n", id);
+	
+	mode_t mode = S_IRUSR | S_IWUSR;
+	struct mq_attr attr;
+	mqd_t qdes;
+
+	attr.mq_flags = 0;
+	attr.mq_msgsize = sizeof(int);
+	attr.mq_maxmsg = queue_size;
 
 	//returns message queue descriptor, to send message only
-	mqd_t qdes = mq_open(qname, O_WRONLY);
+	qdes = mq_open(qname, O_WRONLY, mode, &attr);
 
-	//wait
+	if (qdes == -1 ) 
+	{
+		printf("mq_open() failed");
+		perror("mq_open() failed");
+		exit(1);
+	}
+	//printf("\nid: %d\n", id);
 	//produce
-	//signal
-	//while(1);
+	produced_number = id;
+	while(produced_number < total_num)
+	{
+		//last place it gets to before failing
+		printf("\nid: %d\n", id);
+		//send
+		if (mq_send(qdes,(char*)&produced_number, sizeof(int), 0) == -1)
+		{
+			printf("\nid %d: mq_send failed for number %d", id, produced_number);
+			perror("\nmq_send failed");
+			exit(1);
+		}
+		printf("\nid %d produced %d", id, produced_number);
+		//next number that gives remainder == id
+		produced_number = produced_number + total_producers;
+	}
+
+	mq_close(qdes);
+	exit(0);
 }
 
-void consumer(int id) {
-	printf("\n consumer id: %d\n", id);
+void consumer(int id) 
+{
+	//printf("\n consumer id: %d\n", id);
 
 	//returns message queue descriptor, to write and receive message 
 	mqd_t qdes = mq_open(qname, O_RDWR);
@@ -46,7 +81,9 @@ int main(int argc, char *argv[])
 	int pid;
 	struct timeval tv;
 	//used in queue
-	const char * qname;
+	//const char * qname;
+	mqd_t qdes;
+	struct mq_attr attr;
 
 
 	if (argc != 5) {
@@ -59,11 +96,21 @@ int main(int argc, char *argv[])
 	num_p = atoi(argv[3]);  /* number of producers        */
 	num_c = atoi(argv[4]);  /* number of consumers        */
 
+	attr.mq_flags = 0;
+	attr.mq_maxmsg = maxmsg;
+	attr.mq_msgsize = sizeof(int);
+
 
 	gettimeofday(&tv, NULL);
 	g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
 
 	//code here----------------------------------------------
+	qdes = mq_open(qname, O_CREAT | O_RDWR, (S_IRUSR | S_IWUSR), &attr);
+	if (qdes == -1 ) 
+	{
+		perror("mq_open() failed");
+		exit(1);
+	}
 	
 	//create producers
 	if (num_p) {
@@ -76,8 +123,7 @@ int main(int argc, char *argv[])
 
 			if(pid == 0) {
 				//child creates producer and breaks out
-				producer(index_p);
-				break;
+				producer(index_p, num_p, num, maxmsg);
 			}
 
 			else if(pid < 0) {
@@ -88,14 +134,17 @@ int main(int argc, char *argv[])
 
 	//create consumers
 	if (num_c) {
+		//fork returns 0 to newly created child process
 		pid = 0;
 		int index_c = 0;
 		for (index_c = 0; index_c < num_c; index_c++) {
+			//parent continues to fork children until i = num_p
 			pid = fork();
 
 			if (pid == 0) {
+				//child creates producer and breaks out
 				consumer(index_c);
-				break;
+				exit(0);
 			}
 
 			else if (pid < 0) {
