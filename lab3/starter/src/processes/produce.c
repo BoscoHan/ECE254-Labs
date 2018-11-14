@@ -20,20 +20,22 @@ const char * qname = "/buffer";
 void producer(int id, int total_producers, int total_num, int queue_size) 
 {
 	int produced_number;
+	int test;
 	//printf("\nid: %d\n", id);
 	
 	mode_t mode = S_IRUSR | S_IWUSR;
 	struct mq_attr attr;
-	mqd_t qdes;
+	mqd_t q;
 
 	attr.mq_flags = 0;
 	attr.mq_msgsize = sizeof(int);
 	attr.mq_maxmsg = queue_size;
 
 	//returns message queue descriptor, to send message only
-	qdes = mq_open(qname, O_WRONLY, mode, &attr);
+	// qdes = mq_open(qname, O_WRONLY, mode, &attr);
+	q = mq_open(qname, O_WRONLY);
 
-	if (qdes == -1 ) 
+	if (q == -1 ) 
 	{
 		printf("mq_open() failed");
 		perror("mq_open() failed");
@@ -44,21 +46,30 @@ void producer(int id, int total_producers, int total_num, int queue_size)
 	produced_number = id;
 	while(produced_number < total_num)
 	{
+        //TESTING ---------------------------------------------------
 		//last place it gets to before failing
-		printf("\nid: %d\n", id);
-		//send
-		if (mq_send(qdes,(char*)&produced_number, sizeof(int), 0) == -1)
+		//printf("\ntest1: %d\n", id);
+		//kill(getpid(), -1);
+		//printf("\ntest2: %d\n", id);
+		//test = mq_send(q,(char*)&produced_number, sizeof(int), 0);
+		//printf("\ntest3: %d\n", id);
+        //-----------------------------------------------------------
+		
+        //send
+		if (mq_send(q,(char*)&produced_number, sizeof(int), 0) == -1)
 		{
+			printf("\nerror: %d\n", id);
 			printf("\nid %d: mq_send failed for number %d", id, produced_number);
 			perror("\nmq_send failed");
 			exit(1);
 		}
+
 		printf("\nid %d produced %d", id, produced_number);
 		//next number that gives remainder == id
 		produced_number = produced_number + total_producers;
 	}
 
-	mq_close(qdes);
+	mq_close(q);
 	exit(0);
 }
 
@@ -105,9 +116,10 @@ int main(int argc, char *argv[])
 	g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
 
 	//code here----------------------------------------------
-	qdes = mq_open(qname, O_CREAT | O_RDWR, (S_IRUSR | S_IWUSR), &attr);
+	qdes = mq_open(qname, (O_CREAT | O_RDWR), (S_IRWXU | S_IRWXG | S_IRWXO), &attr);
 	if (qdes == -1 ) 
 	{
+		printf("mq_open() failed");
 		perror("mq_open() failed");
 		exit(1);
 	}
