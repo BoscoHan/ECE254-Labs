@@ -37,7 +37,7 @@ void producer(int id, int total_producers, int total_num, int queue_size)
 
 	if (q == -1 ) 
 	{
-		printf("mq_open() failed");
+		printf("\nmq_open() failed");
 		perror("mq_open() failed");
 		exit(1);
 	}
@@ -46,15 +46,6 @@ void producer(int id, int total_producers, int total_num, int queue_size)
 	produced_number = id;
 	while(produced_number < total_num)
 	{
-        //TESTING ---------------------------------------------------
-		//last place it gets to before failing
-		//printf("\ntest1: %d\n", id);
-		//kill(getpid(), -1);
-		//printf("\ntest2: %d\n", id);
-		//test = mq_send(q,(char*)&produced_number, sizeof(int), 0);
-		//printf("\ntest3: %d\n", id);
-        //-----------------------------------------------------------
-		
         //send
 		if (mq_send(q,(char*)&produced_number, sizeof(int), 0) == -1)
 		{
@@ -64,7 +55,7 @@ void producer(int id, int total_producers, int total_num, int queue_size)
 			exit(1);
 		}
 
-		printf("\nid %d produced %d", id, produced_number);
+		//printf("\nid %d produced %d", id, produced_number);
 		//next number that gives remainder == id
 		produced_number = produced_number + total_producers;
 	}
@@ -73,13 +64,51 @@ void producer(int id, int total_producers, int total_num, int queue_size)
 	exit(0);
 }
 
-void consumer(int id) 
+void consumer(int cid) 
 {
-	//printf("\n consumer id: %d\n", id);
+	int message;
+	double root;
+
+	//printf("\n consumer id: %d\n", cid);
 
 	//returns message queue descriptor, to write and receive message 
 	mqd_t qdes = mq_open(qname, O_RDWR);
+	
+	if(qdes == -1){
+		printf("\nConsumer mq_open() failed");
+		perror("Consumer - mq_open() failed");
+        exit(1);
+	}
 
+	//keep looping until a kill signal is received
+	while(1)
+	{
+		//get message from queue
+		if(mq_receive(qdes, (char *) &message, sizeof(int), 0) == -1)
+		{
+			perror("mq_receive() failed");
+            printf("\nConsumer: %d failed.\n", cid);
+            exit(1);
+		}
+
+		//if -1 kill is received, break out of loop
+		if(message == -1)
+		{
+			//printf("\nconsumer %d exited\n", cid);
+			break;
+		}
+
+		//square root
+		root = sqrt(message);
+		if(floor(root) == root)
+		{
+			printf("%d %d %d\n", cid, message, (int)root);
+		}
+
+	}
+
+	mq_close(qdes);
+	exit(0);
 }
 
 
@@ -96,7 +125,6 @@ int main(int argc, char *argv[])
 	mqd_t qdes;
 	struct mq_attr attr;
 
-
 	if (argc != 5) {
 		printf("Usage: %s <N> <B> <P> <C>\n", argv[0]);
 		exit(1);
@@ -111,6 +139,10 @@ int main(int argc, char *argv[])
 	attr.mq_maxmsg = maxmsg;
 	attr.mq_msgsize = sizeof(int);
 
+	//producer and consumer pids
+    pid_t* producer_pids = malloc(num_p * sizeof(pid_t));
+    pid_t* consumer_pids = malloc(num_c * sizeof(pid_t));
+
 
 	gettimeofday(&tv, NULL);
 	g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
@@ -119,7 +151,7 @@ int main(int argc, char *argv[])
 	qdes = mq_open(qname, (O_CREAT | O_RDWR), (S_IRWXU | S_IRWXG | S_IRWXO), &attr);
 	if (qdes == -1 ) 
 	{
-		printf("mq_open() failed");
+		printf("\nmq_open() failed");
 		perror("mq_open() failed");
 		exit(1);
 	}
@@ -132,6 +164,7 @@ int main(int argc, char *argv[])
 		for(index_p = 0; index_p < num_p; index_p++) {
 			//parent continues to fork children until i = num_p
 			pid = fork();
+			producer_pids[index_p] = pid;
 
 			if(pid == 0) {
 				//child creates producer and breaks out
@@ -139,7 +172,7 @@ int main(int argc, char *argv[])
 			}
 
 			else if(pid < 0) {
-				printf("fork failed");
+				printf("\nfork failed");
 			}
 		}
 	}
@@ -152,6 +185,7 @@ int main(int argc, char *argv[])
 		for (index_c = 0; index_c < num_c; index_c++) {
 			//parent continues to fork children until i = num_p
 			pid = fork();
+			consumer_pids[index_c] = pid;
 
 			if (pid == 0) {
 				//child creates producer and breaks out
@@ -160,10 +194,45 @@ int main(int argc, char *argv[])
 			}
 
 			else if (pid < 0) {
-				printf("fork failed");
+				printf("\nfork failed");
 			}
 		}
 	}
+
+	// waiting for producers
+	int i;
+	for (i = 0; i < num_p; i++)
+	{
+		waitpid(producer_pids[i], 0, 0);
+	}
+
+	//free producers
+	free(producer_pids);
+
+	//send kill signal to each consumer
+	int kill_signal = -1;
+	for(i = 0; i < num_c; i++)
+	{
+		mq_send(qdes, (char *)&kill_signal, sizeof(int), 0);
+	}
+
+	//wait for consumers
+	for(i = 0; i < num_c; i++)
+	{
+		waitpid(consumer_pids[i],0,0);
+	}
+
+	//free consumers
+	free(consumer_pids);
+
+	//close and destroy message queue
+    if (mq_close(qdes) == -1 || mq_unlink(qname) == -1) 
+	{
+        perror("mq_close() or mq_unlink failed");
+        exit(1);
+    }
+
+
 
 	//--------------------------------------------------------
    
