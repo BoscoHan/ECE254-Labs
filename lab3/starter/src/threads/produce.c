@@ -102,7 +102,7 @@ void* consumer(void* input)
 		sem_wait(&occupiedSpaces);
 		pthread_mutex_lock(&mutex);
 		//consume
-		//square root
+		
 		message = buffer[consumer_index % buffer_size];
 		consumer_index++;
 
@@ -117,6 +117,7 @@ void* consumer(void* input)
 			pthread_exit(0);
 		}
 
+		//square root
 		root = sqrt(message);
 		if(floor(root) == root)
 		{
