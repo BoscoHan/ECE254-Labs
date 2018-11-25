@@ -30,7 +30,16 @@ void test1_best_fit() {
 	printf("\nTest 1 Best Fit \n");
 	best_fit_memory_init(1000);
 
+	// best_fit_alloc(200);
+	// best_fit_alloc(200);
+	best_fit_alloc(1);
 	best_fit_alloc(200);
+	best_fit_alloc(100);
+	best_fit_alloc(0);
+	best_fit_alloc(200);
+	best_fit_alloc(200);
+	best_fit_alloc(500);
+
 	print_mem_info(1);
 
 	//best_fit_alloc

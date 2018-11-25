@@ -23,7 +23,7 @@ struct memory_list *worst_memory;
 int best_fit_memory_init(size_t size)
 {
 	printf("size of our struct is %d\n\n", sizeof(struct memory_list));
-	// To be completed by students
+
 	if(size < sizeof(struct memory_list) + 4)
 	{
 		return -1;
@@ -36,7 +36,7 @@ int best_fit_memory_init(size_t size)
 		return -1;
 	}
 
-	best_memory->address = best_memory +  sizeof(struct memory_list);
+	best_memory = (struct memory_list*)((size_t)best_memory +  sizeof(struct memory_list));
 	best_memory->space = size - sizeof(struct memory_list);
 	best_memory->allocated = 0;
 	best_memory->previous = NULL;
@@ -62,13 +62,13 @@ int worst_fit_memory_init(size_t size)
 		return -1;
 	}
 
-	worst_memory->address = worst_memory +  sizeof(struct memory_list);
+	worst_memory = (struct memory_list*)((size_t)worst_memory +  sizeof(struct memory_list));
 	worst_memory->space = size - sizeof(struct memory_list);
 	worst_memory->allocated = 0;
 	worst_memory->previous = NULL;
 	worst_memory->next = NULL;
 
-	printf("\nworst init %lu\n", worst_memory->address);
+	//printf("\nworst init %lu\n", worst_memory->address);
 
 	return 0;
 }
@@ -77,55 +77,77 @@ int worst_fit_memory_init(size_t size)
 void *best_fit_alloc(size_t size)
 {
 
-	//can't be less than struct size
-	if (size < sizeof(struct memory_list)){
-		//return -1;
-	}
-
 	struct memory_list *current = best_memory;
-	struct memory_list *min_node = 0;
-	
-	//reduce size of node
-	while(current->next != NULL)
+	struct memory_list *min_node; //= best_memory;
+
+	//don't create new node if 0 requested
+	if(size == 0)
 	{
-		//update min node to current if its unallocated, smaller than previous min and has enough space
-		if(current->allocated == 0 && current->space < min_node->space && current->space > size)
-		{
-		  min_node = current;
-		}
-		current = current->next; 
+		return NULL;
 	}
 
-	if(!min_node)
+	//initialize starting position of min_node to first allocated node
+	while(current != NULL)
 	{
-		return 0;
+		if(current->allocated == 0)
+		{
+			min_node = current;
+			break;
+		}
+		current = current->next;
+	}
+	
+	if(best_memory->next != NULL)
+	{
+	//reduce size of node
+		while(current->next != NULL)
+		{
+			current = current->next; 
+			//update min node to current if its unallocated, smaller than previous min and has enough space
+			if(current->allocated == 0 && current->space < min_node->space && current->space > size + sizeof(struct memory_list))
+			{
+			min_node = current;
+			}
+		}
+	}
+
+	//printf("min node %lu %d %d\n",(long unsigned int)min_node, min_node->space, min_node->allocated);
+	
+	// break if requested > size initialized
+	if(min_node->allocated == 1 || min_node->space < size + sizeof(struct memory_list))
+	{
+		printf("\nThere is no min node\n");
+		return NULL;
 	}
 
 	//if node size is exactly amount we need, just change status and return
-	if(min_node->space == size + sizeof(struct memory_list))
+	if(min_node->space == size)
 	{
+		printf("\nexact fit\n");
 		min_node->allocated = 1;
-		return min_node->address;
+		return min_node;
 	}
 
-	//create new next node
-	struct memory_list * new_node;
-	new_node->address = min_node->address + size;// + sizeof(struct memory_list);
-	new_node->space = min_node->space;// - sizeof(struct memory_list);
-	
-	//allocate node
-	min_node->allocated = 1;
-	min_node->space = size;
+	//temp logic
+	struct memory_list * new_node = (size_t)min_node +  sizeof(struct memory_list) + size;
+	//printf("\nnew node %lu\n", (unsigned long)new_node);
 
-	//link nodes
-	new_node->next = min_node->next;
-	new_node->previous = min_node;
-	min_node->next = new_node;
-	struct memory_list * temp = new_node->next;
-	temp->previous = new_node;
+	if(min_node->next != NULL)
+	{
+		min_node->next->previous = new_node;
+		new_node->next = min_node->next;
+	}
 
-	// To be completed by students
-	return NULL;
+	 new_node->previous = min_node;
+	 min_node->next = new_node;
+
+	 new_node->allocated = 0;
+	 new_node->space = min_node->space - size - sizeof(struct memory_list);
+	 
+	 min_node->space = size;
+	 min_node->allocated = 1;
+
+	 return (struct memory_list*)((size_t)min_node + sizeof(struct memory_list));
 }
 
 

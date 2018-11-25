@@ -30,8 +30,7 @@ int worst_fit_count_extfrag(size_t size);
 
 struct memory_list
 {
-	size_t * address;
-	size_t space;
+	unsigned int space;
 	int allocated; //0 = unallocated, 1 = allocated
 
 	struct memory_list * previous;
