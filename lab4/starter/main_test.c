@@ -16,11 +16,10 @@
  */
 #include "mem.h"
 
-
-
 int main(int argc, char *argv[]) {
 	printf("\nstart test\n");
-	test1_best_fit();
+	//test1_best_fit();
+	test2_worst_fit();
 	return 0;
 }
 
@@ -30,8 +29,8 @@ void test1_best_fit() {
 	printf("\nTest 1 Best Fit \n");
 	best_fit_memory_init(1000);
 
-	// best_fit_alloc(200);
-	// best_fit_alloc(200);
+	best_fit_alloc(200);
+	best_fit_alloc(200);
 	best_fit_alloc(1);
 	best_fit_alloc(200);
 	best_fit_alloc(100);
@@ -39,25 +38,24 @@ void test1_best_fit() {
 	best_fit_alloc(200);
 	best_fit_alloc(200);
 	best_fit_alloc(500);
-
 	print_mem_info(1);
-
-	//best_fit_alloc
-
-	// void* a = best_fit_alloc(200);
-	// //best_fit_alloc(220);
-	// void* c = best_fit_alloc(220);
-	// best_fit_alloc(200);
-
-	// printf("Full\n");
-	// print_mem_info(1);
-	// printf("---\n");
-
-	// best_fit_alloc(100);
-	// printf("Allocated 100, should go into block 1\n");
-	// print_mem_info(1);
-	// printf("---\n");
 
 	return;
 }
 
+void test2_worst_fit(){
+	printf("\nTest 2 Worst Fit \n");
+	worst_fit_memory_init(1000);
+
+	worst_fit_alloc(200);
+	worst_fit_alloc(200);
+	worst_fit_alloc(1);
+	worst_fit_alloc(200);
+	worst_fit_alloc(100);
+	worst_fit_alloc(0);
+	worst_fit_alloc(200);
+	worst_fit_alloc(200);
+	worst_fit_alloc(500);
+	 print_mem_info(0);
+	return;
+}
