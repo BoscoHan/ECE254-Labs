@@ -28,4 +28,14 @@ void worst_fit_dealloc(void *ptr);
 int best_fit_count_extfrag(size_t size);
 int worst_fit_count_extfrag(size_t size);
 
+struct memory_list
+{
+	size_t * address;
+	size_t space;
+	int allocated; //0 = unallocated, 1 = allocated
+
+	struct memory_list * previous;
+	struct memory_list * next;
+};
+
 #endif // !MEM_H_
