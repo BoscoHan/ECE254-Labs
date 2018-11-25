@@ -296,7 +296,7 @@ void best_fit_dealloc(void *ptr)
 {
 	struct memory_list * node = (struct memory_list *)((size_t)ptr - sizeof(struct memory_list));
 	node -> allocated = 0;
-	printf("\nthe node to remove %lu %d % d\n", (size_t)node, node->space, node->allocated);
+	// printf("\nthe node to remove %lu %d % d\n", (size_t)node, node->space, node->allocated);
 	
 	// do coallasing here
 	coalesce(node);			
@@ -305,7 +305,12 @@ void best_fit_dealloc(void *ptr)
 
 void worst_fit_dealloc(void *ptr) 
 {
-	// To be completed by students
+	struct memory_list * node = (struct memory_list *)((size_t)ptr - sizeof(struct memory_list));
+	node -> allocated = 0;
+	// printf("\nthe node to remove %lu %d % d\n", (size_t)node, node->space, node->allocated);
+	
+	// do coallasing here
+	coalesce(node);			
 	return;
 }
 
@@ -314,19 +319,30 @@ void worst_fit_dealloc(void *ptr)
 /* count how many free blocks are less than the input size */ 
 int best_fit_count_extfrag(size_t size)
 {
-	// To be completed by students
-	return 0;
+	int bf_count = 0;
+	struct memory_list* current = best_memory;		
+	while (current -> next != NULL) {
+		if (current->allocated = 0 && current->space < size + sizeof(struct memory_list)){
+			bf_count++;
+		}
+		current = current->next;		
+	}
+	return bf_count;
 }
 
 int worst_fit_count_extfrag(size_t size)
 {
-	// To be completed by students
-	return 0;
-}
-
-void test()
-{
-	printf("\ntest function called");
+	int wf_count = 0;
+	struct memory_list * current = worst_memory; 
+	while(current != NULL)
+	{
+		if(current->allocated == 0 && current->space < size + sizeof(struct memory_list) )
+		{
+			wf_count++;
+		}
+		current = current->next;
+	}
+	return wf_count;
 }
 
 // test
