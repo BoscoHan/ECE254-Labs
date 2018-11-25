@@ -112,7 +112,7 @@ void *best_fit_alloc(size_t size)
 	// break if requested > size initialized
 	if(min_node->allocated == 1 || min_node->space < size + sizeof(struct memory_list))
 	{
-		printf("\nThere is no min node\n");
+		printf("There is no min node\n");
 		return NULL;
 	}
 
@@ -188,7 +188,7 @@ void *worst_fit_alloc(size_t size)
 	// break if requested > size initialized
 	if(max_node->allocated == 1 || max_node->space < size + sizeof(struct memory_list))
 	{
-		printf("\nThere is no max node\n");
+		printf("There is no max node\n");
 		return NULL;
 	}
 
@@ -224,10 +224,82 @@ void *worst_fit_alloc(size_t size)
 }
 
 /* memory de-allocator */
+void coalesce (struct memory_list * node )
+{	
+	//next previous nodes
+	struct memory_list * previous = node -> previous;
+	struct memory_list * next = node -> next;	
+
+	//5 cases
+
+	//first and last
+	if(previous == NULL && next->allocated == 1 || next == NULL && previous->allocated == 1)
+	{
+		return;
+	}
+	//none free
+	if ((previous == NULL && next == NULL) || (previous->allocated == 1 && next->allocated == 1))
+	{
+		//do nothing
+		return;		
+	}
+
+	//previous free
+	if ((previous != NULL && previous->allocated==0) && (next == NULL || next->allocated == 1 ))
+	{
+		printf("\nPREVIOUS\n");
+		//    0  ------ 0 ------- 1
+		struct memory_list* temp = node;
+		node = previous;
+		node->previous = previous->previous;
+		previous->previous->next = node;
+		node->next = temp->next;
+
+		//update size and delete node
+		node->space = temp->space + node->space + sizeof(struct memory_list);
+	}
+
+	//next free
+	if ((next != NULL && next->allocated == 0) && (previous == NULL || previous->allocated == 1))
+	{
+		printf("\nNEXT\n");
+		//   1  ------ 0 ------- 0
+		node->next = next->next;
+		if(next->next != NULL)
+		{
+			 next->next->previous= node;
+		}
+		//update size and delete node
+		node->space = node->space + next->space + sizeof(struct memory_list);
+	}
+
+	//both free
+	if((next != NULL && next->allocated == 0) && (previous != NULL && previous->allocated == 0))
+	{
+		printf("\nBOTH\n");
+		node->next = next->next;
+		if(next->next != NULL)
+		{
+			 next->next->previous= node;
+		}
+		//update size and delete node
+		node->space = node->space + next->space + sizeof(struct memory_list);
+		
+		//call again to coalesce the previous
+		coalesce(node);
+	}
+	
+}
+
+/* memory de-allocator */
 void best_fit_dealloc(void *ptr) 
 {
-
-	// To be completed by students
+	struct memory_list * node = (struct memory_list *)((size_t)ptr - sizeof(struct memory_list));
+	node -> allocated = 0;
+	printf("\nthe node to remove %lu %d % d\n", (size_t)node, node->space, node->allocated);
+	
+	// do coallasing here
+	coalesce(node);			
 	return;
 }
 

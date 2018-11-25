@@ -18,8 +18,8 @@
 
 int main(int argc, char *argv[]) {
 	printf("\nstart test\n");
-	//test1_best_fit();
-	test2_worst_fit();
+	test1_best_fit();
+	//test2_worst_fit();
 	return 0;
 }
 
@@ -29,17 +29,18 @@ void test1_best_fit() {
 	printf("\nTest 1 Best Fit \n");
 	best_fit_memory_init(1000);
 
-	best_fit_alloc(200);
-	best_fit_alloc(200);
-	best_fit_alloc(1);
-	best_fit_alloc(200);
 	best_fit_alloc(100);
-	best_fit_alloc(0);
-	best_fit_alloc(200);
-	best_fit_alloc(200);
-	best_fit_alloc(500);
+	void * first = best_fit_alloc(100);
+	void * mid = best_fit_alloc(100);
+	void * last =  best_fit_alloc(200);
+	// best_fit_alloc(100);
+	// best_fit_alloc(0);
+	// best_fit_alloc(200);
+	// best_fit_alloc(500);
+	best_fit_dealloc(first);
+	best_fit_dealloc(last);
+	best_fit_dealloc(mid);
 	print_mem_info(1);
-
 	return;
 }
 
@@ -56,6 +57,6 @@ void test2_worst_fit(){
 	worst_fit_alloc(200);
 	worst_fit_alloc(200);
 	worst_fit_alloc(500);
-	 print_mem_info(0);
+	print_mem_info(0);
 	return;
 }
