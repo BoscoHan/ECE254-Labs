@@ -568,7 +568,7 @@ void best_vs_worst_large_data() {
 }
 
 int main(int argc, char *argv[]) {
-	// test1_worst_fit();
+	test1_worst_fit();
 	// test2_worst_fit();
 	// test3_worst_fit();
 	// test4_worst_fit();
@@ -576,20 +576,24 @@ int main(int argc, char *argv[]) {
 	// test6_worst_fit();
 	// test7_worst_fit();
 	// test8_worst_fit();
-	// test9_worst_fit(); //weird address
 
 	//  test1_best_fit();
 	//  test2_best_fit();
 	//  test3_best_fit();
 	//  test4_best_fit();   
 	//  test5_best_fit();
-	test6_best_fit();
-	// // test7_best_fit();
+
+	// test7_best_fit();
 	// test8_best_fit();
-	// // test9_best_fit();
+
 
 	// worst_vs_best_fragments();
 	// best_vs_worst_large_data();
 
+	// test6_best_fit(); // 100 core dump
+	// test9_best_fit(); // weird address
+	// test9_worst_fit(); //weird address
+
 	return 0;
 }
+

@@ -94,7 +94,9 @@ void *best_fit_alloc(size_t size)
 		}
 		current = current->next;
 	}
-	printf("\nMIN NODE SIZE %d %d\n", min_node->space, min_node->allocated);
+
+	current = best_memory;
+	//printf("\nMIN NODE SIZE %d %d\n", min_node->space, min_node->allocated);
 	if(best_memory->next != NULL)
 	{
 	//reduce size of node
@@ -102,13 +104,16 @@ void *best_fit_alloc(size_t size)
 		{
 			current = current->next; 
 			//update min node to current if its unallocated, smaller than previous min and has enough space
-			if(current->allocated == 0 && current->space < min_node->space && current->space > size + sizeof(struct memory_list))
+			if(current->allocated == 0 && (current->space <= min_node->space) && (current->space >= (size + sizeof(struct memory_list))))
 			{
 			min_node = current;
 			}
 		}
 	}
-	
+
+	//printf("\nMIN NODE AFTER WHILE SIZE %d %d\n", min_node->space, min_node->allocated);
+	//printf("\nSize + sizeof %d\n", size + sizeof(struct memory_list));
+
 	// break if requested > size initialized
 	if(min_node->allocated == 1 || min_node->space < size + sizeof(struct memory_list))
 	{
@@ -117,10 +122,11 @@ void *best_fit_alloc(size_t size)
 	}
 
 	//if node size is exactly amount we need, just change status and return
-	if(min_node->space == size)
+	if(min_node->space == size + sizeof(struct memory_list))
 	{
-		printf("\nexact fit\n");
+		printf("\nExact fit\n");
 		min_node->allocated = 1;
+		min_node->space = size;
 		return min_node;
 	}
 
@@ -146,7 +152,7 @@ void *best_fit_alloc(size_t size)
 	 min_node->space = size;
 	 min_node->allocated = 1;
 
-	 printf("MIN NODE END %d %d\n", min_node->space, min_node->allocated);
+	// printf("MIN NODE END %d %d\n", min_node->space, min_node->allocated);
 	 
 	 //add struct size to return address
 	 return (struct memory_list*)((size_t)min_node + sizeof(struct memory_list));
@@ -375,3 +381,4 @@ void print_mem_info(int type) {
 		traverse=traverse->next;
 	}
 }
+
