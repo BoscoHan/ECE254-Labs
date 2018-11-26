@@ -94,7 +94,7 @@ void *best_fit_alloc(size_t size)
 		}
 		current = current->next;
 	}
-	
+	printf("\nMIN NODE SIZE %d %d\n", min_node->space, min_node->allocated);
 	if(best_memory->next != NULL)
 	{
 	//reduce size of node
@@ -128,10 +128,12 @@ void *best_fit_alloc(size_t size)
 	//printf("\nnew node %lu\n", (unsigned long)new_node);
 
 	if(min_node->next != NULL)
-	{
+	{	struct memory_list * new_node = (size_t)min_node +  sizeof(struct memory_list) + size;
+
 		min_node->next->previous = new_node;
 		new_node->next = min_node->next;
 	}
+
 
 	//add the new node in the list
 	//update spaces
@@ -144,6 +146,8 @@ void *best_fit_alloc(size_t size)
 	 min_node->space = size;
 	 min_node->allocated = 1;
 
+	 printf("MIN NODE END %d %d\n", min_node->space, min_node->allocated);
+	 
 	 //add struct size to return address
 	 return (struct memory_list*)((size_t)min_node + sizeof(struct memory_list));
 }
@@ -235,11 +239,13 @@ void coalesce (struct memory_list * node )
 	//first and last
 	if(previous == NULL && next->allocated == 1 || next == NULL && previous->allocated == 1)
 	{
+		printf("\nNOTHING\n");
 		return;
 	}
 	//none free
 	if ((previous == NULL && next == NULL) || (previous->allocated == 1 && next->allocated == 1))
 	{
+		printf("\nNOTHING\n");
 		//do nothing
 		return;		
 	}
@@ -251,8 +257,15 @@ void coalesce (struct memory_list * node )
 		//    0  ------ 0 ------- 1
 		struct memory_list* temp = node;
 		node = previous;
-		node->previous = previous->previous;
-		previous->previous->next = node;
+		if(previous != NULL)
+		{
+			node->previous = previous->previous;
+		}
+		if(previous->previous != NULL)
+		{
+			previous->previous->next = node;
+		}
+		
 		node->next = temp->next;
 
 		//update size and delete node
@@ -355,7 +368,7 @@ void print_mem_info(int type) {
 	else if(type == 1) {
 		traverse = (struct memory_list*)best_memory;
 	}
-	
+
 	while(traverse != NULL){
 		printf("Control Address: %lu\tSize: %d\tState: %d\n",
 			(long unsigned int)traverse, traverse->space, traverse->allocated);

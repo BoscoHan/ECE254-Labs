@@ -213,10 +213,10 @@ void test9_worst_fit() {
 	print_mem_info(0);
 	printf("---\n");
 
-	printf("Trying to deallocate a block that is not the starting address we gave\n");
-	worst_fit_dealloc(b+12);
-	print_mem_info(0);
-	printf("---\n");
+	// printf("Trying to deallocate a block that is not the starting address we gave\n");
+	// worst_fit_dealloc(b+12);
+	// print_mem_info(0);
+	// printf("---\n");
 
 	printf("Deallocating the same block of memory by giving the correct start address\n");
 	worst_fit_dealloc(b);
@@ -364,9 +364,9 @@ void test6_best_fit() {
 	best_fit_dealloc(b);
 	best_fit_alloc(100);
 
-	printf("Number of free blocks with under 100 bytes: %d \n", best_fit_count_extfrag(100));
+	// printf("Number of free blocks with under 100 bytes: %d \n", best_fit_count_extfrag(100));
 	print_mem_info(1);
-	printf("---\n");
+	// printf("---\n");
 }
 
 void test7_best_fit(){ // tests for invalid starting size (less than a control node)
@@ -568,28 +568,28 @@ void best_vs_worst_large_data() {
 }
 
 int main(int argc, char *argv[]) {
-	test1_worst_fit();
+	// test1_worst_fit();
 	// test2_worst_fit();
 	// test3_worst_fit();
-	 test4_worst_fit();
-	 test5_worst_fit();
-	 test6_worst_fit();
-	//test7_worst_fit();
-	 test8_worst_fit();
-	//test9_worst_fit();
+	// test4_worst_fit();
+	// test5_worst_fit();
+	// test6_worst_fit();
+	// test7_worst_fit();
+	// test8_worst_fit();
+	// test9_worst_fit(); //weird address
 
-	 test1_best_fit();
-	// test2_best_fit();
-	// test3_best_fit();
-	 test4_best_fit();
-	 test5_best_fit();
-	//test6_best_fit();
-	//test7_best_fit();
-	test8_best_fit();
-	//test9_best_fit();
+	//  test1_best_fit();
+	//  test2_best_fit();
+	//  test3_best_fit();
+	//  test4_best_fit();   
+	//  test5_best_fit();
+	test6_best_fit();
+	// // test7_best_fit();
+	// test8_best_fit();
+	// // test9_best_fit();
 
-	worst_vs_best_fragments();
-	best_vs_worst_large_data();
+	// worst_vs_best_fragments();
+	// best_vs_worst_large_data();
 
 	return 0;
 }
