@@ -95,6 +95,15 @@ void *best_fit_alloc(size_t size)
 		current = current->next;
 	}
 
+	//if node size is exactly amount we need, just change status and return
+	if(min_node->space == size + sizeof(struct memory_list))
+	{
+		printf("\nExact fit\n");
+		min_node->allocated = 1;
+		min_node->space = size;
+		return min_node;
+	}
+
 	current = best_memory;
 	//printf("\nMIN NODE SIZE %d %d\n", min_node->space, min_node->allocated);
 	if(best_memory->next != NULL)
@@ -115,18 +124,17 @@ void *best_fit_alloc(size_t size)
 	//printf("\nSize + sizeof %d\n", size + sizeof(struct memory_list));
 
 	// break if requested > size initialized
-	if(min_node->allocated == 1 || min_node->space < size + sizeof(struct memory_list))
+	if(min_node->allocated == 1 || min_node->space < size)
 	{
 		printf("There is no min node\n");
 		return NULL;
 	}
 
-	//if node size is exactly amount we need, just change status and return
-	if(min_node->space == size + sizeof(struct memory_list))
+	//if size passed in is greater than left over space minus header
+	if(size > min_node->space - sizeof(struct memory_list))
 	{
-		printf("\nExact fit\n");
+		printf("\nexact fit\n");
 		min_node->allocated = 1;
-		min_node->space = size;
 		return min_node;
 	}
 
@@ -159,6 +167,9 @@ void *best_fit_alloc(size_t size)
 }
 
 
+
+
+
 void *worst_fit_alloc(size_t size)
 {	
 	struct memory_list *current = worst_memory;
@@ -181,6 +192,15 @@ void *worst_fit_alloc(size_t size)
 		current = current->next;
 	}
 
+	//if node size is exactly amount we need, just change status and return
+	if(max_node->space == size)
+	{
+		printf("\nexact fit\n");
+		max_node->allocated = 1;
+		max_node->space = size;
+		return max_node;
+	}
+
 	if(worst_memory->next != NULL)
 	{
 	//reduce size of node
@@ -196,14 +216,14 @@ void *worst_fit_alloc(size_t size)
 	}
 
 	// break if requested > size initialized
-	if(max_node->allocated == 1 || max_node->space < size + sizeof(struct memory_list))
+	if(max_node->allocated == 1 || max_node->space < size)
 	{
 		printf("There is no max node\n");
 		return NULL;
 	}
 
-	//if node size is exactly amount we need, just change status and return
-	if(max_node->space == size)
+	//if size passed in is greater than left over space minus header
+	if(size > max_node->space - sizeof(struct memory_list))
 	{
 		printf("\nexact fit\n");
 		max_node->allocated = 1;
@@ -243,7 +263,7 @@ void coalesce (struct memory_list * node )
 	//5 cases
 
 	//first and last
-	if(previous == NULL && next->allocated == 1 || next == NULL && previous->allocated == 1)
+	if((previous == NULL && next->allocated == 1) || (next == NULL && previous->allocated == 1))
 	{
 		printf("\nNOTHING\n");
 		return;
@@ -341,7 +361,7 @@ int best_fit_count_extfrag(size_t size)
 	int bf_count = 0;
 	struct memory_list* current = best_memory;		
 	while (current -> next != NULL) {
-		if (current->allocated = 0 && current->space < size + sizeof(struct memory_list)){
+		if (current->allocated == 0 && current->space < size + sizeof(struct memory_list)){
 			bf_count++;
 		}
 		current = current->next;		
