@@ -22,11 +22,11 @@ void test1_worst_fit() {
 	//simple alloc only test
 	printf("Test 1 Worst Fit \n");
 	worst_fit_memory_init(1000);
-	void* a = worst_fit_alloc(400);
-	worst_fit_alloc(548);
+	void* a = worst_fit_alloc(499);
+	worst_fit_alloc(159);
 	//worst_fit_alloc(400);
 	// //worst_fit_dealloc(a);
-	print_mem_info(1);
+	print_mem_info(0);
 	return;
 }
 

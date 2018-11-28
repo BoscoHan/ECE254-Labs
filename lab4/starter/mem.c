@@ -79,10 +79,12 @@ void *best_fit_alloc(size_t size)
 	struct memory_list *min_node; //= best_memory;
 
 	//don't create new node if 0 requested
-	if(size == 0)
+	if(size <= 0)
 	{
 		return NULL;
 	}
+
+	size_t adjusted_size = ((size + 4 - 1) / 4) * 4;
 
 	//initialize starting position of min_node to first allocated node
 	while(current != NULL)
@@ -96,11 +98,11 @@ void *best_fit_alloc(size_t size)
 	}
 
 	//if node size is exactly amount we need, just change status and return
-	if(min_node->space == size + sizeof(struct memory_list))
+	if(min_node->space == adjusted_size + sizeof(struct memory_list))
 	{
 		printf("\nExact fit\n");
 		min_node->allocated = 1;
-		min_node->space = size;
+		min_node->space = adjusted_size;
 		return min_node;
 	}
 
@@ -113,7 +115,7 @@ void *best_fit_alloc(size_t size)
 		{
 			current = current->next; 
 			//update min node to current if its unallocated, smaller than previous min and has enough space
-			if(current->allocated == 0 && (current->space <= min_node->space) && (current->space >= (size + sizeof(struct memory_list))))
+			if(current->allocated == 0 && (current->space <= min_node->space) && (current->space >= (adjusted_size + sizeof(struct memory_list))))
 			{
 			min_node = current;
 			}
@@ -124,26 +126,26 @@ void *best_fit_alloc(size_t size)
 	//printf("\nSize + sizeof %d\n", size + sizeof(struct memory_list));
 
 	// break if requested > size initialized
-	if(min_node->allocated == 1 || min_node->space < size)
+	if(min_node->allocated == 1 || min_node->space < adjusted_size)
 	{
 		printf("There is no min node\n");
 		return NULL;
 	}
 
 	//if size passed in is greater than left over space minus header
-	if(size > min_node->space - sizeof(struct memory_list))
+	if(adjusted_size > min_node->space - sizeof(struct memory_list))
 	{
 		printf("\nexact fit\n");
 		min_node->allocated = 1;
 		return min_node;
 	}
 
-	struct memory_list * new_node = (size_t)min_node +  sizeof(struct memory_list) + size;
+	struct memory_list * new_node = (size_t)min_node +  sizeof(struct memory_list) + adjusted_size;
 	//printf("\nnew node %lu\n", (unsigned long)new_node);
 
 	if(min_node->next != NULL)
-	{	struct memory_list * new_node = (size_t)min_node +  sizeof(struct memory_list) + size;
-
+	{	
+		struct memory_list * new_node = (size_t)min_node +  sizeof(struct memory_list) + adjusted_size;
 		min_node->next->previous = new_node;
 		new_node->next = min_node->next;
 	}
@@ -155,9 +157,9 @@ void *best_fit_alloc(size_t size)
 	 min_node->next = new_node;
 
 	 new_node->allocated = 0;
-	 new_node->space = min_node->space - size - sizeof(struct memory_list);
+	 new_node->space = min_node->space - adjusted_size - sizeof(struct memory_list);
 	 
-	 min_node->space = size;
+	 min_node->space = adjusted_size;
 	 min_node->allocated = 1;
 
 	// printf("MIN NODE END %d %d\n", min_node->space, min_node->allocated);
@@ -166,20 +168,19 @@ void *best_fit_alloc(size_t size)
 	 return (struct memory_list*)((size_t)min_node + sizeof(struct memory_list));
 }
 
-
-
-
-
 void *worst_fit_alloc(size_t size)
 {	
 	struct memory_list *current = worst_memory;
 	struct memory_list *max_node; //= best_memory;
 
 	//don't create new node if 0 requested
-	if(size == 0)
+	if(size <= 0)
 	{
 		return NULL;
 	}
+
+	size_t adjusted_size = ((size + 4 - 1) / 4) * 4;
+	printf("\n%d\n", adjusted_size);
 
 	//initialize starting position of min_node to first allocated node
 	while(current != NULL)
@@ -193,11 +194,11 @@ void *worst_fit_alloc(size_t size)
 	}
 
 	//if node size is exactly amount we need, just change status and return
-	if(max_node->space == size)
+	if(max_node->space == adjusted_size)
 	{
 		printf("\nexact fit\n");
 		max_node->allocated = 1;
-		max_node->space = size;
+		max_node->space = adjusted_size;
 		return max_node;
 	}
 
@@ -208,7 +209,7 @@ void *worst_fit_alloc(size_t size)
 		{
 			current = current->next; 
 			//update min node to current if its unallocated, smaller than previous min and has enough space
-			if(current->allocated == 0 && current->space > max_node->space && current->space > size + sizeof(struct memory_list))
+			if(current->allocated == 0 && current->space > max_node->space && current->space > adjusted_size + sizeof(struct memory_list))
 			{
 			max_node = current;
 			}
@@ -216,21 +217,21 @@ void *worst_fit_alloc(size_t size)
 	}
 
 	// break if requested > size initialized
-	if(max_node->allocated == 1 || max_node->space < size)
+	if(max_node->allocated == 1 || max_node->space < adjusted_size)
 	{
 		printf("There is no max node\n");
 		return NULL;
 	}
 
 	//if size passed in is greater than left over space minus header
-	if(size > max_node->space - sizeof(struct memory_list))
+	if(adjusted_size > max_node->space - sizeof(struct memory_list))
 	{
 		printf("\nexact fit\n");
 		max_node->allocated = 1;
 		return max_node;
 	}
 
-	struct memory_list * new_node = (size_t)max_node +  sizeof(struct memory_list) + size;
+	struct memory_list * new_node = (size_t)max_node +  sizeof(struct memory_list) + adjusted_size;
 
 	//add the new node in the list
 	//update spaces
@@ -244,9 +245,9 @@ void *worst_fit_alloc(size_t size)
 	 max_node->next = new_node;
 
 	 new_node->allocated = 0;
-	 new_node->space = max_node->space - size - sizeof(struct memory_list);
+	 new_node->space = max_node->space - adjusted_size - sizeof(struct memory_list);
 	 
-	 max_node->space = size;
+	 max_node->space = adjusted_size;
 	 max_node->allocated = 1;
 	
 	 //add struct size to return address
