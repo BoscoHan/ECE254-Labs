@@ -89,14 +89,14 @@ void test5_worst_fit()
 	worst_fit_alloc(299);
 	worst_fit_alloc(299);
 	void * middle = worst_fit_alloc(199);
-	void * bottom = worst_fit_alloc(104);
+	void * bottom = worst_fit_alloc(24);
+	worst_fit_alloc(24);
 	// ---- full--------
 	//deallocate bottom node then middle node
 	 worst_fit_dealloc(bottom);
 	 worst_fit_dealloc(middle);
 	// //allocate again
-	 worst_fit_alloc(280);
-	 worst_fit_alloc(24);
+	 worst_fit_alloc(245);
 	// //----- full -------
 	 worst_fit_alloc(200);
 
@@ -104,28 +104,35 @@ void test5_worst_fit()
 	return;
 }
 
+//( ͡ಠ ʖ̯ ͡ಠ)╭∩╮
 void test6_worst_fit()
 {
-	//alloc and dealloc -- coalesce top
+	//alloc and dealloc -- coalesce top and bottom
 	printf("Test 4 Worst Fit \n");
 	worst_fit_memory_init(1000);
 	void * top = worst_fit_alloc(299);
 	void * middle = worst_fit_alloc(199);
-	worst_fit_alloc(428);
+	void * bottom = worst_fit_alloc(428);
 	// ---- full--------
 	//deallocate top node then middle node
 	worst_fit_dealloc(top);
 	worst_fit_dealloc(middle);
 	//allocate again
-	worst_fit_alloc(280);
-	worst_fit_alloc(220);
+	void * a = worst_fit_alloc(280);
+	void * b = worst_fit_alloc(220);
 	//----- full -------
 	worst_fit_alloc(200);
+
+	//dealloc top, bottom, then middle
+	 worst_fit_dealloc(a);
+	 worst_fit_dealloc(bottom);
+	 worst_fit_dealloc(b);
 
 	print_mem_info(0);
 	return;
 }
 
+//┌П┐(▀̿Ĺ̯▀̿ ̿)
 void test2_best_fit() {
 	best_fit_memory_init(1000);
 	void* a = best_fit_alloc(100);
@@ -139,6 +146,7 @@ void test2_best_fit() {
 	return;
 }
 
+//
 void test3_best_fit() {
 	best_fit_memory_init(1000);
 	void* a = best_fit_alloc(100);
@@ -163,7 +171,9 @@ int main(int argc, char *argv[]) {
 	// test2_worst_fit();
 	// test3_worst_fit();
 	// test4_worst_fit();
-	 test5_worst_fit();
+	// test5_worst_fit();
+	test6_worst_fit();
+
 	// test2_best_fit();
 	// test4_large_allocation();
 	return 0;
