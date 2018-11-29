@@ -46,8 +46,8 @@ void test2_worst_fit() {
 	return;
 }
 
-/* TEST 3: allocates 4 blocks which completely fill the memory,
-	tries to allocate a fifth but is unsuccesful because there is no space
+/* TEST 3: allocates 3 blocks then deallocates the top block,
+	then allocates two more blocks tomake sure allcoation works after deallocation
 */
 void test3_worst_fit() {
 	//simple alloc and dealloc - no coalescing required
@@ -66,6 +66,9 @@ void test3_worst_fit() {
 	return;
 }
 
+/* TEST 4: COALESCE TOP - allocates 3 blocks, then deallocates the top and middle block,
+ so the top and middle node need to get combined together. then allocates again to fill the rest of empty blocks.
+*/
 void test4_worst_fit()
 {
 	//alloc and dealloc -- coalesce top
@@ -88,9 +91,12 @@ void test4_worst_fit()
 	return;
 }
 
+/* TEST 5: COALESCE BOTTOM allocates 5 blocks, then deallocates the middle and bottom block,
+ so the bottom and middle node need to get combined together. then allocates again.
+*/
 void test5_worst_fit()
 {
-	//alloc and dealloc -- coalesce top
+	//alloc and dealloc -- coalesce bottom
 	printf("\nTest 5 Worst Fit - expected states: 1 1 1 1 0\n");
 	worst_fit_memory_init(1000);
 	worst_fit_alloc(299);
@@ -111,7 +117,11 @@ void test5_worst_fit()
 	return;
 }
 
-//( ͡ಠ ʖ̯ ͡ಠ)╭∩╮
+/* TEST 6: COALESCE BOTH - allocates 3 blocks then deallocates the top and middle block which need to get combined together.
+then three additional blocks are allocated. then the first two of those three are deallocated 
+and finally the one remaining block at the bottom is deallocated which results in all of them 
+needing to be combined back together into one empty node
+*/
 void test6_worst_fit()
 {
 	//alloc and dealloc -- coalesce top and bottom
@@ -140,6 +150,8 @@ void test6_worst_fit()
 }
 
 /////////////////////////////////
+/* TEST 1: allocates two blocks, leaving one empty with remaining space
+*/
 void test1_best_fit() {
 	//simple alloc only test
 	printf("\nTest 1 worst Fit - expected states: 1 1 0\n");
@@ -150,6 +162,9 @@ void test1_best_fit() {
 	return;
 }
 
+/* TEST 2: allocates 4 blocks which completely fill the memory,
+	tries to allocate a fifth but is unsuccesful because there is no space
+*/
 void test2_best_fit() {
 	//alloc full test
 	printf("\nTest 2 worst Fit - expected states: 1 1 1\n");
@@ -164,6 +179,9 @@ void test2_best_fit() {
 	return;
 }
 
+/* TEST 3: allocates 3 blocks then deallocates the top block,
+	then allocates two more blocks tomake sure allcoation works after deallocation
+*/
 void test3_best_fit() {
 	//simple alloc and dealloc - no coalescing required
 	printf("\nTest 3 worst Fit - expected states 1 1 1 1\n");
@@ -181,6 +199,9 @@ void test3_best_fit() {
 	return;
 }
 
+/* TEST 4: COALESCE TOP - allocates 3 blocks, then deallocates the top and middle block,
+ so the top and middle node need to get combined together. then allocates again to fill the rest of empty blocks.
+*/
 void test4_best_fit()
 {
 	//alloc and dealloc -- coalesce top
@@ -203,6 +224,9 @@ void test4_best_fit()
 	return;
 }
 
+/* TEST 5: COALESCE BOTTOM allocates 5 blocks, then deallocates the middle and bottom block,
+ so the bottom and middle node need to get combined together. then allocates again.
+*/
 void test5_best_fit()
 {
 	//alloc and dealloc -- coalesce top
@@ -226,7 +250,11 @@ void test5_best_fit()
 	return;
 }
 
-//( ͡ಠ ʖ̯ ͡ಠ)╭∩╮
+/* TEST 6: COALESCE BOTH - allocates 3 blocks then deallocates the top and middle block which need to get combined together.
+then three additional blocks are allocated. then the first two of those three are deallocated 
+and finally the one remaining block at the bottom is deallocated which results in all of them 
+needing to be combined back together into one empty node
+*/
 void test6_best_fit()
 {
 	//alloc and dealloc -- coalesce top and bottom
@@ -254,8 +282,7 @@ void test6_best_fit()
 	return;
 }
 
-/* large data
-*/
+//Worst Best - various size allocations and deallocations to compare fragmentation
 void worst_best_test1()
 {
 	//----------Worst Fit ---------------
