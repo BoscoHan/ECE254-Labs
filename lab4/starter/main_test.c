@@ -282,7 +282,7 @@ void test6_best_fit()
 	return;
 }
 
-//Worst Best - various size allocations and deallocations to compare fragmentation
+//Worst Best - various sized (small and big) allocations and deallocations to compare fragmentation
 void worst_best_test1()
 {
 	//----------Worst Fit ---------------
@@ -339,9 +339,12 @@ void worst_best_test1()
 	best_fit_dealloc(best_nine);
 	best_fit_dealloc(best_twelve);
 
+	printf("Fragmentation Test - small and large allocations\n");
 	printf("\nWorst Fit fragmentation under 8: %d", worst_fit_count_extfrag(8));
 	printf("\nWorst Fit fragmentation under 32: %d", worst_fit_count_extfrag(32));
+	printf("\nWorst Fit fragmentation under 48: %d", worst_fit_count_extfrag(48));
 	printf("\nWorst Fit fragmentation under 64: %d", worst_fit_count_extfrag(64));
+	printf("\nWorst Fit fragmentation under 80: %d", worst_fit_count_extfrag(80));
 	printf("\nWorst Fit fragmentation under 128: %d", worst_fit_count_extfrag(128));
 	printf("\nWorst Fit fragmentation under 256: %d", worst_fit_count_extfrag(256));
 	printf("\nWorst Fit fragmentation under 512: %d", worst_fit_count_extfrag(512));
@@ -349,20 +352,98 @@ void worst_best_test1()
 
 	printf("\nBest Fit fragmentation under 8: %d", best_fit_count_extfrag(8));
 	printf("\nBest Fit fragmentation under 32: %d", best_fit_count_extfrag(32));
+	printf("\nBest Fit fragmentation under 48: %d", best_fit_count_extfrag(48));
 	printf("\nBest Fit fragmentation under 64: %d", best_fit_count_extfrag(64));
+	printf("\nBest Fit fragmentation under 80: %d", best_fit_count_extfrag(80));
 	printf("\nBest Fit fragmentation under 128: %d", best_fit_count_extfrag(128));
 	printf("\nBest Fit fragmentation under 256: %d", best_fit_count_extfrag(256));
 	printf("\nBest Fit fragmentation under 512: %d", best_fit_count_extfrag(512));
 	printf("\n\n");
 
+
 	return;
 }
 
-/* fragments
+/* Worst Best - small sized data allocations and deallocations to compare fragmentation
 */
 void worst_best_test2()
 {
+	//---WORST---
+	worst_fit_memory_init(1000);
+	void * worst_a = worst_fit_alloc(400);
+	void * worst_b = worst_fit_alloc(8);
 
+	worst_fit_dealloc(worst_a);
+	
+	//allocate a few
+	void * b = worst_fit_alloc(16);
+	void * c = worst_fit_alloc(32);
+	void * d = worst_fit_alloc(8);
+	void * e = worst_fit_alloc(40);
+	void * f = worst_fit_alloc(28);
+	void * g = worst_fit_alloc(56);
+
+	worst_fit_dealloc(c);
+	worst_fit_dealloc(f);
+	worst_fit_dealloc(g);
+
+	void * h = worst_fit_alloc(56);
+	void * i = worst_fit_alloc(8);
+	void * j = worst_fit_alloc(32);
+	void * k = worst_fit_alloc(80);
+	void * l = worst_fit_alloc(12);
+
+	worst_fit_dealloc(i);
+	worst_fit_dealloc(j);
+
+	//BEST
+	best_fit_memory_init(1000);
+	void * best_a = best_fit_alloc(400);
+	void * best_b = best_fit_alloc(8);
+
+	best_fit_dealloc(best_a);
+	
+	//allocate a few
+	void * bb = best_fit_alloc(16);
+	void * bc = best_fit_alloc(32);
+	void * bd = best_fit_alloc(8);
+	void * be = best_fit_alloc(40);
+	void * bf = best_fit_alloc(28);
+	void * bg = best_fit_alloc(56);
+
+	best_fit_dealloc(bc);
+	best_fit_dealloc(bf);
+	best_fit_dealloc(bg);
+
+	void * bh = best_fit_alloc(56);
+	void * bi = best_fit_alloc(8);
+	void * bj = best_fit_alloc(32);
+	void * bk = best_fit_alloc(80);
+	void * bl = best_fit_alloc(12);
+
+	best_fit_dealloc(bi);
+	best_fit_dealloc(bj);
+
+	printf("Fragmentation Test - small allocations\n");
+	printf("\nWorst Fit fragmentation under 8: %d", worst_fit_count_extfrag(8));
+	printf("\nWorst Fit fragmentation under 12: %d", worst_fit_count_extfrag(12));
+	printf("\nWorst Fit fragmentation under 16: %d", worst_fit_count_extfrag(16));
+	printf("\nWorst Fit fragmentation under 20: %d", worst_fit_count_extfrag(20));
+	printf("\nWorst Fit fragmentation under 28: %d", worst_fit_count_extfrag(28));
+	printf("\nWorst Fit fragmentation under 32: %d", worst_fit_count_extfrag(32));
+	printf("\nWorst Fit fragmentation under 56: %d", worst_fit_count_extfrag(56));
+	printf("\nWorst Fit fragmentation under 84: %d", worst_fit_count_extfrag(84));
+	printf("\n\n");
+
+	printf("\nBest Fit fragmentation under 8: %d", best_fit_count_extfrag(8));
+	printf("\nBest Fit fragmentation under 12: %d", best_fit_count_extfrag(12));
+	printf("\nBest Fit fragmentation under 16: %d", best_fit_count_extfrag(16));
+	printf("\nBest Fit fragmentation under 20: %d", best_fit_count_extfrag(20));
+	printf("\nBest Fit fragmentation under 28: %d", best_fit_count_extfrag(28));
+	printf("\nBest Fit fragmentation under 32: %d", best_fit_count_extfrag(32));
+	printf("\nBest Fit fragmentation under 56: %d", best_fit_count_extfrag(56));
+	printf("\nBest Fit fragmentation under 84: %d", best_fit_count_extfrag(84));
+	printf("\n\n");
 }
 
 //¯\_(⊙_ʖ⊙)_/¯
@@ -386,7 +467,9 @@ int main(int argc, char *argv[]) {
 	// test6_best_fit();
 
 	//comparison tests
-	worst_best_test1();
+	 printf("\n---FRAGMENTATION TESTS---\n");
+	 worst_best_test1();
+	 worst_best_test2();
 
 	return 0;
 }
