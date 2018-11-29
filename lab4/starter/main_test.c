@@ -396,7 +396,7 @@ void worst_best_test2()
 	worst_fit_dealloc(i);
 	worst_fit_dealloc(j);
 
-	//BEST
+	//---BEST---
 	best_fit_memory_init(1000);
 	void * best_a = best_fit_alloc(400);
 	void * best_b = best_fit_alloc(8);
