@@ -22,7 +22,7 @@ struct memory_list *worst_memory;
 /* memory initializer */
 int best_fit_memory_init(size_t size)
 {
-	printf("size of our struct is %d\n\n", sizeof(struct memory_list));
+	//printf("size of our struct is %d\n\n", sizeof(struct memory_list));
 
 	if(size < sizeof(struct memory_list) + 4)
 	{
@@ -76,7 +76,7 @@ void *best_fit_alloc(size_t size)
 {
 
 	struct memory_list *current = best_memory;
-	struct memory_list *min_node; //= best_memory;
+	struct memory_list *min_node = NULL; //= best_memory;
 
 	//don't create new node if 0 requested
 	if(size <= 0)
@@ -95,6 +95,11 @@ void *best_fit_alloc(size_t size)
 			break;
 		}
 		current = current->next;
+	}
+
+	if(min_node == NULL)
+	{
+		return NULL;
 	}
 
 	//if node size is exactly amount we need, just change status and return
@@ -171,7 +176,7 @@ void *best_fit_alloc(size_t size)
 void *worst_fit_alloc(size_t size)
 {	
 	struct memory_list *current = worst_memory;
-	struct memory_list *max_node; //= best_memory;
+	struct memory_list *max_node = NULL; //= best_memory;
 
 	//don't create new node if 0 requested
 	if(size <= 0)
@@ -180,7 +185,7 @@ void *worst_fit_alloc(size_t size)
 	}
 
 	size_t adjusted_size = ((size + 4 - 1) / 4) * 4;
-	printf("\n%d\n", adjusted_size);
+	
 
 	//initialize starting position of min_node to first allocated node
 	while(current != NULL)
@@ -192,6 +197,12 @@ void *worst_fit_alloc(size_t size)
 		}
 		current = current->next;
 	}
+
+	if(max_node == NULL)
+	{
+		return NULL;
+	}
+
 
 	//if node size is exactly amount we need, just change status and return
 	if(max_node->space == adjusted_size)
@@ -334,7 +345,18 @@ void coalesce (struct memory_list * node )
 /* memory de-allocator */
 void best_fit_dealloc(void *ptr) 
 {
-	struct memory_list * node = (struct memory_list *)((size_t)ptr - sizeof(struct memory_list));
+	struct memory_list * node;
+
+	if((((struct memory_list *)ptr)->space) == 0)
+	{
+		node = (struct memory_list *)((size_t)ptr - sizeof(struct memory_list));
+	}
+	else
+	{
+		node = (struct memory_list *)((size_t)ptr);
+	}
+	
+	printf("\nthe node to remove %lu %d % d\n", (size_t)node, node->space, node->allocated);
 	node -> allocated = 0;
 	// printf("\nthe node to remove %lu %d % d\n", (size_t)node, node->space, node->allocated);
 	
@@ -345,10 +367,19 @@ void best_fit_dealloc(void *ptr)
 
 void worst_fit_dealloc(void *ptr) 
 {
-	struct memory_list * node = (struct memory_list *)((size_t)ptr - sizeof(struct memory_list));
+	struct memory_list * node;
+	if((((struct memory_list *)ptr)->space) == 0)
+	{
+		node = (struct memory_list *)((size_t)ptr - sizeof(struct memory_list));
+	}
+	else
+	{
+		node = (struct memory_list *)((size_t)ptr);
+	}
+	//printf("\nthe node to remove %lu %d % d\n", (size_t)ptr, ((struct memory_list *)ptr)->space, ((struct memory_list *)ptr)->allocated);
+	//struct memory_list * node = (struct memory_list *)((size_t)ptr - sizeof(struct memory_list));
+	printf("\nthe node to remove %lu %d % d\n", (size_t)node, node->space, node->allocated);
 	node -> allocated = 0;
-	// printf("\nthe node to remove %lu %d % d\n", (size_t)node, node->space, node->allocated);
-	
 	// do coallasing here
 	coalesce(node);			
 	return;
@@ -387,12 +418,12 @@ int worst_fit_count_extfrag(size_t size)
 
 // test
 // testing function to view memory of best fit (1) or worst fit (0)
-void print_mem_info(int type) {
+void print_mem_info(int fitSelection) {
 	struct memory_list* traverse;
-	if(type == 0) {
+	if(fitSelection == 0) {
 		traverse = (struct memory_list*)worst_memory;
 	}
-	else if(type == 1) {
+	else if(fitSelection == 1) {
 		traverse = (struct memory_list*)best_memory;
 	}
 

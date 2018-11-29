@@ -32,7 +32,6 @@ struct memory_list
 {
 	unsigned int space;
 	int allocated; //0 = unallocated, 1 = allocated
-
 	struct memory_list * previous;
 	struct memory_list * next;
 };
