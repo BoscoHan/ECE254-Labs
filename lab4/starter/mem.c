@@ -201,14 +201,6 @@ void *worst_fit_alloc(size_t size)
 	}
 
 
-	//if node size is exactly amount we need, just change status and return
-	if(max_node->space == adjusted_size)
-	{
-		max_node->allocated = 1;
-		max_node->space = adjusted_size;
-		return max_node;
-	}
-
 	if(worst_memory->next != NULL)
 	{
 	//reduce size of node
@@ -221,6 +213,14 @@ void *worst_fit_alloc(size_t size)
 			max_node = current;
 			}
 		}
+	}
+
+	//if node size is exactly amount we need, just change status and return
+	if(max_node->space == adjusted_size)
+	{
+		max_node->allocated = 1;
+		max_node->space = adjusted_size;
+		return max_node;
 	}
 
 	// break if requested > size initialized
@@ -378,7 +378,7 @@ int best_fit_count_extfrag(size_t size)
 	int bf_count = 0;
 	struct memory_list* current = best_memory;		
 	while (current -> next != NULL) {
-		if (current->allocated == 0 && current->space < size + sizeof(struct memory_list)){
+		if (current->allocated == 0 && current->space < size){
 			bf_count++;
 		}
 		current = current->next;		
@@ -392,7 +392,7 @@ int worst_fit_count_extfrag(size_t size)
 	struct memory_list * current = worst_memory; 
 	while(current != NULL)
 	{
-		if(current->allocated == 0 && current->space < size + sizeof(struct memory_list) )
+		if(current->allocated == 0 && current->space < size )
 		{
 			wf_count++;
 		}
@@ -403,19 +403,23 @@ int worst_fit_count_extfrag(size_t size)
 
 // test
 // testing function to view memory of best fit (1) or worst fit (0)
-void print_mem_info(int fitSelection) {
-	struct memory_list* traverse;
-	if(fitSelection == 0) {
-		traverse = (struct memory_list*)worst_memory;
+void print_memory(int mem_type) {
+	struct memory_list* current;
+	
+	if(mem_type == 0) 
+	{
+		current = (struct memory_list*)worst_memory;
 	}
-	else if(fitSelection == 1) {
-		traverse = (struct memory_list*)best_memory;
+	
+	else if(mem_type == 1) 
+	{
+		current = (struct memory_list*)best_memory;
 	}
 
-	while(traverse != NULL){
-		printf("Control Address: %lu\tSize: %d\tState: %d\n",
-			(long unsigned int)traverse, traverse->space, traverse->allocated);
-		traverse=traverse->next;
+	while(current != NULL)
+	{
+		printf("Address: %lu\tSpace: %d\tState: %d\n",(size_t)current, current->space, current->allocated);
+		current=current->next;
 	}
 }
 
